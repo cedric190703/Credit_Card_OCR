@@ -1,5 +1,6 @@
 import sys
 import cv2
+import pytesseract
 
 # Import the paths to use the main functions
 sys.path.append('./Processing')

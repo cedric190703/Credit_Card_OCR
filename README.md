@@ -17,7 +17,7 @@ Extraction of digits with regex (Python).
 
 
 ### Step 4 :
-Analysis of the credit card number with TensorFlow (AI model) and <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Kaggle dataset</a>.
+Analysis of the credit card with TensorFlow (AI model) and <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Kaggle dataset</a>.
 
 
 ### Backhend part (API):
