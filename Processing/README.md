@@ -1,0 +1,1 @@
+In this part we clean the image and also find the credit card and apply the perspective transform.
