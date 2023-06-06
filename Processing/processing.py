@@ -32,6 +32,7 @@ def find_card(binary):
             perimeter = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02 * perimeter, True)
             if len(approx) == 4:
+                
                 return approx.reshape(4, 2)
 
         # If no suitable contour is found, return None
@@ -82,10 +83,8 @@ def perspective_transform(points, image):
 
     return transformed
 
-def perspective_filter(transformed):
-    """Apply filters to detect numbers in the trasnformed image"""
-    gray = cv2.cvtColor(transformed, cv2.COLOR_BGR2GRAY)
-
+def opening_process(gray):
+    """Apply filters to have digits group patterns"""
     rectKernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 3))
 
     # Apply errosion and dilatation
@@ -94,6 +93,7 @@ def perspective_filter(transformed):
     # Compute the gradient
     gradX = cv2.Sobel(opening, ddepth=cv2.CV_32F, dx=1, dy=0,
 	ksize=-1)
+    
     gradX = np.absolute(gradX)
     (minVal, maxVal) = (np.min(gradX), np.max(gradX))
     gradX = (255 * ((gradX - minVal) / (maxVal - minVal)))
@@ -101,10 +101,43 @@ def perspective_filter(transformed):
 
     # Errode the contours in the image
     gradX = cv2.morphologyEx(gradX, cv2.MORPH_CLOSE, rectKernel)
+
     thresh = cv2.threshold(gradX, 0, 255,
     cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+
+    return thresh
+
+def get_digits(areas, transformed):
+    """"Returns images of all the numbers in the areas"""
+    digits_list = []
+
+    # Get each digits contours in the area
+    for (x, y, w, h) in areas:
+
+        # Group of digits
+        roi = transformed[y:y+h, x:x+w]
+
+        roi_gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+
+        _, thresh = cv2.threshold(roi_gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+        contours_digit, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        # Get each digit
+        for ctn in contours_digit:
+            (x, y, w, h) = cv2.boundingRect(ctn)
+            digit = thresh[y-2:y + h+2, x-2:x + w+2]
+
+            digits_list.append(digit)
     
-    cv2.imshow("final", thresh)
+    return digits_list
+
+def perspective_filter(transformed):
+    """Apply filters to detect numbers in the trasnformed image
+    and returns the groups of digits in the credit card"""
+    gray = cv2.cvtColor(transformed, cv2.COLOR_BGR2GRAY)
+
+    thresh = opening_process(gray)
 
     contours, _ = cv2.findContours(thresh,
     cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -118,34 +151,8 @@ def perspective_filter(transformed):
 
         if 2 <= area <= 4 and 40 < w < 70 and 12 < h < 25:
                 areas.append((x-5, y-5, w+10, h+10))
-
-    digits_list = []
     
-    # Draw rectangular contours
-    for (x, y, w, h) in areas:
-        # Group of digits
-        roi = transformed[y:y+h, x:x+w]
-
-        height, width = roi.shape[:2]
-
-        digit_width = width // 4
-
-        for i in range(4):
-            # Calculate the start and end positions of the digit
-            start_x = (i * digit_width)
-            end_x = start_x + digit_width
-
-            print(start_x, "   ", end_x)
-            # Crop the digit from the ROI
-            digit = roi[:, start_x:end_x]
-
-            cv2.imshow("Digit", digit)
-            cv2.waitKey(0)
-
-        # Display the cropped ROI
-        cv2.rectangle(transformed, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-    cv2.imshow("contours", transformed)
+    return areas
 
 def main_processing(image):
     # Define the new size of the image
@@ -155,8 +162,6 @@ def main_processing(image):
 
     resized = cv2.resize(image, new_size)
     
-    copy_image = resized.copy()
-    
     binary = processing(resized)
 
     contours = find_card(binary)
@@ -165,11 +170,15 @@ def main_processing(image):
         # Apply perspective transform
         rect = normalized_NP(contours)
 
-        transformed = perspective_transform(rect, copy_image)
-        perspective_filter(transformed)
-        cv2.waitKey(0)
+        transformed = perspective_transform(rect, resized)
+
+        areas = perspective_filter(transformed)
+
+        digits_images = get_digits(areas, transformed)
+
+        digits = digits_images if len(digits_images) == 16 else None
         cv2.destroyAllWindows()
+
+        return digits
         
-        return transformed
-    
     return None

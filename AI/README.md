@@ -4,4 +4,4 @@ In this part we will develop 2 different AI models :
 
 2-AI model based on the Isolation Forest algorithm.
 
-For these two AI model we will use Python's libraries : Sklearn, Numpy or also Pandas.
+For these two AI model we will use Python's libraries : Sklearn, TensorFlow Numpy or also Pandas.

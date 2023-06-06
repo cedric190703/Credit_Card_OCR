@@ -9,14 +9,10 @@ Image processsing : Detect the credit card and cleanup the image with openCV.
 
 
 ### Step 2 :
-Digits recognition with Tesseract (Python).
+Digits recognition with CNN ML's model (Python).
 
 
 ### Step 3 :
-Extraction of digits with regex (Python).
-
-
-### Step 4 :
 Analysis of the credit card with TensorFlow (AI model) and <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Kaggle dataset</a>.
 
 
