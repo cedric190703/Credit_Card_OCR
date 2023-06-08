@@ -10,17 +10,19 @@ Image processsing : Detect the credit card and cleanup the image with openCV.
 
 
 <p align="center">
-<img src="Images_ex/perspective2.png" alt="perspective transform" width="500" height="350">
+<img src="Images_ex/perspective2.png" alt="perspective transform" width="425" height="315">
 </p>
 Image of the perspective transform.
 
+
 <p align="center">
-<img src="Images_ex/group_digits.png" alt="digit group" width="500" height="350">
+<img src="Images_ex/group_digits.png" alt="digit group" width="300" height="200">
 </p>
 Image of the group of digits extracted from the original image.
 
+
 <p align="center">
-<img src="Images_ex/digit2.png" alt="digit" width="500" height="350">
+<img src="Images_ex/digit2.png" alt="digit" width="200" height="100">
 </p>
 Image of one digit extracted from the group of digits from the last big step.
 
