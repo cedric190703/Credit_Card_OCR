@@ -1,3 +1,4 @@
+
 import sys
 import cv2
 import tensorflow as tf
@@ -10,7 +11,7 @@ sys.path.append('./Processing')
 from processing import main_processing
 
 def main():
-    image = cv2.imread(r'Image_Cards/c3.jpg')
+    image = cv2.imread(r'Image_Cards/f.jpg')
 
     # Step 1 : Image processing
     digits = main_processing(image)
@@ -26,7 +27,7 @@ def main():
     # Step 2 : Recognizes the numbers using the CNN model
     for digit in digits:
         # Step 3: Preprocess the digit image
-        #digit = preprocess_digit(digit)
+        # digit = preprocess_digit(digit)
 
         # Resize the image to 28 x 28 pixels
         image = cv2.resize(digit, (28, 28))
@@ -42,7 +43,7 @@ def main():
 
         # Make the prediction using the model
         prediction = np.argmax(model.predict(image))
-        print(prediction)
+        # print(prediction)
 
         plt.imshow(image.reshape(28, 28), cmap='gray')
         plt.show()
@@ -50,23 +51,8 @@ def main():
         # Step 11: Add the predicted digit to the card number
         card_number.append(prediction)
 
-    card_number.reverse()
-
-    cpt = 0
-    real_data = [4, 8, 4, 1, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4]
-
-    print(len(real_data), "   ", len(card_number))
-    for i in range(len(card_number)):
-        if(real_data[i] != card_number[i]):
-            cpt+=1
-    
     print(card_number)
-    print(cpt)
-
-    # Step 3 : Extraction of digits
-
-
-    # Step 4 : Credit card analysis
+    # Step 3 : Credit card analysis
 
 if __name__ == "__main__":
     main()

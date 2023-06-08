@@ -28,7 +28,7 @@ def generate_dataset(font_family_folder, min_size, max_size, digits, num_samples
         digit_width = digit_bbox[2] - digit_bbox[0]
         digit_height = digit_bbox[3] - digit_bbox[1]
         x = (image.width - digit_width) // 2
-        y = (image.height - digit_height) // 2
+        y = (image.height - digit_height) // 2 - 14
 
         # Draw the digit on the image
         draw.text((x, y), str(digit), font=font, fill="white")
@@ -81,10 +81,10 @@ def create_model(input_shape, num_classes):
 
 def main_ai():
     font_families_folder = "AI/Fonts"
-    font_size_min = 54
-    font_size_max = 62
+    font_size_min = 62
+    font_size_max = 70
     digits = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    num_samples = 75000
+    num_samples = 80000
 
     dataset = generate_dataset(font_families_folder, font_size_min, font_size_max, digits, num_samples)
 
@@ -152,7 +152,7 @@ def main_ai():
                   metrics=['accuracy'])
 
     # Train the model
-    model.fit(train_images, train_labels, epochs=5, validation_data=(test_images, test_labels))
+    model.fit(train_images, train_labels, epochs=6, validation_data=(test_images, test_labels))
 
     # Evaluate the model
     test_loss, test_acc = model.evaluate(test_images , test_labels)

@@ -80,6 +80,7 @@ def perspective_transform(points, image):
     transformed = cv2.warpPerspective(image,
     transformation_matrix, (grid_size_height, grid_size_weight))
 
+
     return transformed
 
 def opening_process(gray):
@@ -112,20 +113,33 @@ def get_digits(areas, transformed):
 
     # Get each digits contours in the area
     for (x, y, w, h) in areas:
-
         # Group of digits
         roi = transformed[y:y+h, x:x+w]
 
         roi_gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
 
-        _, thresh = cv2.threshold(roi_gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+        # Apply gaussian blur on the Grayscale image
+        blur = cv2.GaussianBlur(roi_gray, (5,5), 0)
+
+        _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
 
         contours_digit, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        cv2.imshow("result", thresh)
+        cv2.waitKey(0)
+
+        if(len(contours_digit) > 4):
+             contours_digit = contours_digit[-4:]
 
         # Get each digit
         for ctn in contours_digit:
             (x, y, w, h) = cv2.boundingRect(ctn)
-            digit = thresh[y-2:y + h+3, x-2:x + w+2]
+            digit = thresh[y-2:y + h+2, x-2:x + w+2]
+
+            cv2.imshow("result2", digit)
+            cv2.waitKey(0)
 
             digits_list.append(digit)
     
@@ -148,44 +162,8 @@ def perspective_filter(transformed):
 
         area = w / h
 
-        if 2 <= area <= 4 and 40 < w < 70 and 12 < h < 25:
+        # print(f"{area} | {w} | {h}")
+        if 2.5 <= area <= 4.0 and 50 <= w <= 70 and 10 <= h <= 25:
                 areas.append((x-6, y-6, w+11, h+11))
     
     return areas
-
-def main_processing(image):
-    # Define the new size of the image
-    new_width = 500
-    new_height = 450
-    new_size = (new_width, new_height)
-
-    resized = cv2.resize(image, new_size)
-    
-    binary = processing(resized)
-
-    contours = find_card(binary)
-
-    cv2.imshow("binary", binary)
-    cv2.waitKey(0)
-    
-    if(contours is not None):
-        # Apply perspective transform
-        rect = normalized_NP(contours)
-
-        transformed = perspective_transform(rect, resized)
-        
-        # Show the perspective transform
-        cv2.imshow("transformed", transformed)
-        cv2.waitKey(0)
-        try:
-            areas = perspective_filter(transformed)
-
-            digits_images = get_digits(areas, transformed)
-
-            digits = digits_images if len(digits_images) == 16 else None
-            cv2.destroyAllWindows()
-        
-            return digits
-        except Exception as e : print(e)
-        
-    return None
