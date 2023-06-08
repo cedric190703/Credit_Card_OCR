@@ -1,5 +1,6 @@
 # Credit_Card_OCR API
 This project is about detect and extracts some data from a credit card image using: openCV and Tesseract and then detect if the credit card is a fraud by using an AI.
+Not finished yet
 
 ## In this project we will use Python.
 
