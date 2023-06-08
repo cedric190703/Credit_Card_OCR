@@ -9,11 +9,10 @@ def processing(resized):
     # Apply gaussian blur on the Grayscale image
     blur = cv2.GaussianBlur(gray, (5,5), 0)
 
-    # Apply the threshold on the blur image
-    binary = cv2.adaptiveThreshold(blur, 255,
-    cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 4)
+    # Apply the canny filter on the blur image
+    edged = cv2.Canny(blur, 50, 150)
 
-    return binary
+    return edged
 
 def find_card(binary):
         """"Returns the contours of the credit card or None otherwise"""
@@ -126,7 +125,7 @@ def get_digits(areas, transformed):
         # Get each digit
         for ctn in contours_digit:
             (x, y, w, h) = cv2.boundingRect(ctn)
-            digit = thresh[y-2:y + h+2, x-2:x + w+2]
+            digit = thresh[y-2:y + h+3, x-2:x + w+2]
 
             digits_list.append(digit)
     
@@ -150,7 +149,7 @@ def perspective_filter(transformed):
         area = w / h
 
         if 2 <= area <= 4 and 40 < w < 70 and 12 < h < 25:
-                areas.append((x-5, y-5, w+10, h+10))
+                areas.append((x-6, y-6, w+11, h+11))
     
     return areas
 
@@ -166,19 +165,27 @@ def main_processing(image):
 
     contours = find_card(binary)
 
+    cv2.imshow("binary", binary)
+    cv2.waitKey(0)
+    
     if(contours is not None):
         # Apply perspective transform
         rect = normalized_NP(contours)
 
         transformed = perspective_transform(rect, resized)
+        
+        # Show the perspective transform
+        cv2.imshow("transformed", transformed)
+        cv2.waitKey(0)
+        try:
+            areas = perspective_filter(transformed)
 
-        areas = perspective_filter(transformed)
+            digits_images = get_digits(areas, transformed)
 
-        digits_images = get_digits(areas, transformed)
-
-        digits = digits_images if len(digits_images) == 16 else None
-        cv2.destroyAllWindows()
-
-        return digits
+            digits = digits_images if len(digits_images) == 16 else None
+            cv2.destroyAllWindows()
+        
+            return digits
+        except Exception as e : print(e)
         
     return None
