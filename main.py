@@ -1,4 +1,3 @@
-
 import sys
 import cv2
 import tensorflow as tf
@@ -26,9 +25,6 @@ def main():
 
     # Step 2 : Recognizes the numbers using the CNN model
     for digit in digits:
-        # Step 3: Preprocess the digit image
-        # digit = preprocess_digit(digit)
-
         # Resize the image to 28 x 28 pixels
         image = cv2.resize(digit, (28, 28))
 
@@ -43,15 +39,12 @@ def main():
 
         # Make the prediction using the model
         prediction = np.argmax(model.predict(image))
-        # print(prediction)
-
+        
         plt.imshow(image.reshape(28, 28), cmap='gray')
         plt.show()
 
-        # Step 11: Add the predicted digit to the card number
         card_number.append(prediction)
 
-    print(card_number)
     # Step 3 : Credit card analysis
 
 if __name__ == "__main__":

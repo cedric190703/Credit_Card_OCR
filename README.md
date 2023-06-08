@@ -9,12 +9,33 @@ Not finished yet
 Image processsing : Detect the credit card and cleanup the image with openCV.
 
 
+<p align="center">
+<img src="Images_ex/perspective2.png" alt="perspective transform" width="500" height="350">
+</p>
+Image of the perspective transform.
+
+<p align="center">
+<img src="Images_ex/group_digits.png" alt="digit group" width="500" height="350">
+</p>
+Image of the group of digits extracted from the original image.
+
+<p align="center">
+<img src="Images_ex/digit2.png" alt="digit" width="500" height="350">
+</p>
+Image of one digit extracted from the group of digits from the last big step.
+
+
 ### Step 2 :
-Digits recognition with CNN ML's model (Python).
+Digits recognition with CNN model (Python). If you want to have more details about this part you need to go in the AI part of the repository.
+
+<p align="center">
+<img src="Images_ex/digit_pred.png" alt="digit prediction" width="500" height="500">
+</p>
+Here we can see that the model is trained on the font OCR-A because it's the most used font for credit card. The model predicted a 9 here (correct).
 
 
 ### Step 3 :
-Analysis of the credit card with TensorFlow (AI model) and <a href="https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud">Kaggle dataset</a>.
+Part that need to be redefined
 
 
 ### Backhend part (API):

@@ -80,7 +80,6 @@ def perspective_transform(points, image):
     transformed = cv2.warpPerspective(image,
     transformation_matrix, (grid_size_height, grid_size_weight))
 
-
     return transformed
 
 def opening_process(gray):
@@ -127,43 +126,87 @@ def get_digits(areas, transformed):
 
         contours_digit, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-        cv2.imshow("result", thresh)
-        cv2.waitKey(0)
+        # cv2.imshow("result", thresh)
+        # cv2.waitKey(0)
 
+        # Get only the last four digits for each digits groups
         if(len(contours_digit) > 4):
              contours_digit = contours_digit[-4:]
+
+        # Sort contours_digit based on x-coordinate
+        contours_digit = sorted(contours_digit, key=lambda ctn: cv2.boundingRect(ctn)[0])
 
         # Get each digit
         for ctn in contours_digit:
             (x, y, w, h) = cv2.boundingRect(ctn)
             digit = thresh[y-2:y + h+2, x-2:x + w+2]
 
-            cv2.imshow("result2", digit)
-            cv2.waitKey(0)
+            # cv2.imshow("result2", digit)
+            # cv2.waitKey(0)
 
             digits_list.append(digit)
-    
+            
     return digits_list
 
 def perspective_filter(transformed):
-    """Apply filters to detect numbers in the trasnformed image
+    """Apply filters to detect numbers in the transformed image
     and returns the groups of digits in the credit card"""
-    gray = cv2.cvtColor(transformed, cv2.COLOR_BGR2GRAY)
 
+    gray = cv2.cvtColor(transformed, cv2.COLOR_BGR2GRAY)
     thresh = opening_process(gray)
 
-    contours, _ = cv2.findContours(thresh,
-    cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     areas = []
 
     for contour in contours:
         (x, y, w, h) = cv2.boundingRect(contour)
-
         area = w / h
 
-        # print(f"{area} | {w} | {h}")
-        if 2.5 <= area <= 4.0 and 50 <= w <= 70 and 10 <= h <= 25:
-                areas.append((x-6, y-6, w+11, h+11))
-    
+        if 2 <= area <= 4 and 40 < w < 70 and 12 < h < 25:
+            areas.append((x-6, y-6, w+10, h+10))
+
+    # Sort the contours by their position in the x axis
+    areas.sort(key=lambda rect: rect[0])
+
     return areas
+
+def main_processing(image):
+    # Define the new size of the image
+    new_width = 500
+    new_height = 450
+    new_size = (new_width, new_height)
+
+    resized = cv2.resize(image, new_size)
+    
+    binary = processing(resized)
+
+    contours = find_card(binary)
+
+    # cv2.imshow("binary", binary)
+    # cv2.waitKey(0)
+    
+    if(contours is not None):
+        # Apply perspective transform
+        rect = normalized_NP(contours)
+
+        transformed = perspective_transform(rect, resized)
+        
+        # Show the perspective transform
+        # cv2.imshow("transformed", transformed)
+        # cv2.waitKey(0)
+        
+        try:
+            areas = perspective_filter(transformed)
+
+            b = transformed.copy()
+
+            digits_images = get_digits(areas, transformed)
+
+            digits = digits_images if len(digits_images) == 16 else None
+            # cv2.destroyAllWindows()
+
+            return digits
+        except Exception as e : print(e)
+        
+    return None
